@@ -56,13 +56,12 @@ jobs:
           else
             echo "Arquivos a serem executados: $ROBOT_FILES"
             robot $ROBOT_FILES \
-              --output api/reports/output.xml \
-              --log api/reports/log.html \
-              --report api/reports/report.html \
-              --listener allure_robotframework;api/reports/api_allure
-          fi
+              --output=api/reports/output.xml \
+              --log=api/reports/log.html \
+              --report=api/reports/report.html \
+              --listener=allure_robotframework;api/reports/api_allure
 
-      # 8️⃣ Gerar relatório Allure HTML somente se houver arquivos
+      # 8️⃣ Gerar relatório Allure HTML somente se houver resultados
       - name: Generate Allure HTML report
         run: |
           if [ -d "api/reports/api_allure" ] && [ "$(ls -A api/reports/api_allure)" ]; then
@@ -70,7 +69,6 @@ jobs:
             ls -R api/reports/allure-report
           else
             echo "Nenhum resultado Allure para gerar. Pulando geração de relatório."
-          fi
 
       # 9️⃣ Upload dos artifacts
       - name: Upload Robot & Allure reports
