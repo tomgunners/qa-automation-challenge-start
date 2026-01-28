@@ -57,22 +57,15 @@ jobs:
             --report=api/reports/report.html \
             --listener="allure_robotframework;api/reports/api_allure" {} +
 
-      # 8️⃣ Gerar relatório Allure seguro
+      # 8️⃣ Gerar relatório Allure de forma segura (uma linha lógica)
       - name: Generate Allure HTML report
         run: |
           echo "Gerando relatório Allure..."
           ALLURE_DIR="api/reports/api_allure"
           OUTPUT_DIR="api/reports/allure-report"
 
-          if [ -d "$ALLURE_DIR" ]; then
-            if [ "$(ls -A $ALLURE_DIR)" ]; then
-              /opt/allure/allure-2.30.0/bin/allure generate "$ALLURE_DIR" -o "$OUTPUT_DIR" --clean
-              echo "Relatório Allure gerado em $OUTPUT_DIR"
-              ls -R "$OUTPUT_DIR"
-            else
-              echo "Nenhum resultado Allure para gerar."
-            fi
-          else
+          [ -d "$ALLURE_DIR" ] && [ "$(ls -A $ALLURE_DIR)" ] && \
+            /opt/allure/allure-2.30.0/bin/allure generate "$ALLURE_DIR" -o "$OUTPUT_DIR" --clean || \
             echo "Nenhum resultado Allure para gerar."
 
       # 9️⃣ Upload de reports como artifacts
