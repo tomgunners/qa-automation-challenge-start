@@ -4,69 +4,64 @@ on:
   push:
     branches:
       - main
-      - develop
   schedule:
-    - cron: '0 9 * * 4' # Quinta-feira às 09:00 UTC
+    - cron: "0 12 * * 4" # Quinta-feira às 09:00 BRT (12:00 UTC)
 
 jobs:
-  api-tests:
+  robot-tests:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout do código
+      # 1️⃣ Pegar o código do repositório
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2. Configurar Python
-      - name: Set up Python 3.11
+      # 2️⃣ Configurar Python
+      - name: Setup Python 3.11
         uses: actions/setup-python@v4
         with:
           python-version: 3.11
 
-      # 3. Instalar dependências
+      # 3️⃣ Instalar dependências
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install robotframework robotframework-allure
 
-      # 4. Rodar testes de API (Robot Framework)
-      - name: Run API tests
+      # 4️⃣ Criar pasta para reports
+      - name: Create reports directory
+        run: mkdir -p api/reports
+
+      # 5️⃣ Conferir estrutura de arquivos (debug)
+      - name: List repository files
+        run: ls -R
+
+      # 6️⃣ Rodar testes Robot Framework
+      - name: Run Robot Framework tests
         run: |
-          mkdir -p api/reports
           robot --output api/reports/output.xml \
                 --log api/reports/log.html \
                 --report api/reports/report.html \
                 --listener allure_robotframework;api/reports/api_allure \
-                api/tests
+                ./api/tests
 
-      # 5. Gerar Allure report
-      - name: Generate Allure Report
-        run: |
-          allure generate api/reports/api_allure -o api/reports/allure-report --clean
-
-      # 6. Upload de artifacts
+      # 7️⃣ Upload dos artifacts (reports)
       - name: Upload Robot Framework reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: robot-reports
-          path: |
-            api/reports/output.xml
-            api/reports/log.html
-            api/reports/report.html
-            api/reports/allure-report
+          path: api/reports
 
-      # 7. Envio de e-mail com relatório
-      - name: Send test report by email
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          username: ${{ secrets.SMTP_USERNAME }}
-          password: ${{ secrets.SMTP_PASSWORD }}
-          subject: Robot Framework API Test Report
-          body: "Segue o relatório dos testes de API do mono-repo."
-          to: tomgunners13@gmail.com
-          from: ${{ secrets.SMTP_USERNAME }}
-          attachments: |
-            api/reports/log.html
-            api/reports/report.html
+      # 8️⃣ (Opcional) Enviar relatório por e-mail usando GitHub Actions
+      #      Obs: Requer configurar um segredo com o SMTP ou usar ação pronta de e-mail
+      #- name: Send email with reports
+      #  uses: dawidd6/action-send-mail@v3
+      #  with:
+      #    server_address: smtp.gmail.com
+      #    server_port: 465
+      #    username: ${{ secrets.EMAIL_USER }}
+      #    password: ${{ secrets.EMAIL_PASS }}
+      #    subject: Robot Framework Test Report
+      #    body: Please find attached the latest Robot Framework report.
+      #    to: tomgunners13@gmail.com
+      #    attachments: api/reports/*
