@@ -37,36 +37,33 @@ jobs:
           export PATH=$PATH:/opt/allure/allure-$ALLURE_VERSION/bin
           allure --version
 
-      # 5️⃣ Criar pasta de reports
-      - name: Create reports directory
+      # 5️⃣ Criar pastas de reports
+      - name: Create reports directories
         run: mkdir -p api/reports/api_allure
 
-      # 6️⃣ Listar arquivos (debug)
-      - name: List repository files
-        run: ls -R
+      # 6️⃣ Debug: listar arquivos da pasta de testes
+      - name: Check tests folder
+        run: |
+          echo "Listando arquivos em ./api/tests"
+          ls -R ./api/tests || echo "Pasta ./api/tests não existe ou está vazia"
+          echo "Listando todos arquivos .robot"
+          find ./api/tests -name "*.robot" || echo "Nenhum arquivo .robot encontrado"
 
-      # 7️⃣ Rodar testes Robot Framework com listener Allure
+      # 7️⃣ Rodar testes Robot Framework
       - name: Run Robot Framework tests
         run: |
-          robot --output api/reports/output.xml \
-                --log api/reports/log.html \
-                --report api/reports/report.html \
-                --listener allure_robotframework;api/reports/api_allure \
-                ./api/tests
+          if [ -d "./api/tests" ] && [ "$(find ./api/tests -name '*.robot' | wc -l)" -gt 0 ]; then
+            robot --output api/reports/output.xml \
+                  --log api/reports/log.html \
+                  --report api/reports/report.html \
+                  --listener allure_robotframework;api/reports/api_allure \
+                  ./api/tests
+          else
+            echo "Nenhum teste .robot encontrado. Pulando execução."
+            exit 1
+          fi
 
       # 8️⃣ Gerar relatório Allure HTML
       - name: Generate Allure HTML report
         run: |
-          /opt/allure/allure-2.30.0/bin/allure generate api/reports/api_allure -o api/reports/allure-report --clean
-          ls -R api/reports/allure-report
-
-      # 9️⃣ Upload dos artifacts
-      - name: Upload Robot & Allure reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: robot-allure-reports
-          path: |
-            api/reports/output.xml
-            api/reports/log.html
-            api/reports/report.html
-            api/reports/allure-report
+          /opt/allure/allure-2.30.0/bin/allu
