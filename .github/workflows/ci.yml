@@ -47,10 +47,11 @@ jobs:
 
       # 7️⃣ Upload dos artifacts (reports)
       - name: Upload Robot Framework reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: robot-reports
           path: api/reports
+
 
       # 8️⃣ (Opcional) Enviar relatório por e-mail usando GitHub Actions
       #      Obs: Requer configurar um segredo com o SMTP ou usar ação pronta de e-mail
