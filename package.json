@@ -1,0 +1,15 @@
+{
+  "name": "qa-automation-challenge-start",
+  "version": "1.0.0",
+  "description": "Scripts para rodar testes automatizados de API e Mobile",
+  "scripts": {
+    "clean-reports": "rimraf \"api/reports\" && mkdir \"api/reports\"",
+    "test:api": "npm run clean-reports && robot --output api/reports/output.xml --log api/reports/log.html --report api/reports/report.html --listener allure_robotframework;api/reports/api_allure api/tests",
+    "allure:generate": "allure generate api/reports/api_allure -o api/reports/api_allure/html --clean",
+    "allure:open": "allure open api/reports/api_allure/html"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "rimraf": "^5.0.0"
+  }
+}

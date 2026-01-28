@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["balance", "blocked_balance", "scheduled_balance"],
+  "properties": {
+    "balance": {
+      "type": "integer"
+    },
+    "blocked_balance": {
+      "type": "integer"
+    },
+    "scheduled_balance": {
+      "type": "integer"
+    }
+  },
+  "additionalProperties": false
+}
