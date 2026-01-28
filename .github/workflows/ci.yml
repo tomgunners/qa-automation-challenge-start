@@ -36,13 +36,14 @@ jobs:
       - name: Create reports directories
         run: mkdir -p api/reports/api_allure
 
-      - name: Run Robot Framework tests (if any)
+      - name: Run Robot Framework tests
         run: |
-          if find ./api/tests -name "*.robot" | grep -q .; then
-            echo "Executando testes Robot Framework..."
-            find ./api/tests -name "*.robot" -exec robot --output=api/reports/output.xml --log=api/reports/log.html --report=api/reports/report.html --listener="allure_robotframework;api/reports/api_allure" {} +
-          else
-            echo "Nenhum arquivo .robot encontrado. Pulando execução."
+          echo "Executando todos os arquivos .robot encontrados..."
+          find ./api/tests -name "*.robot" -exec robot \
+            --output=api/reports/output.xml \
+            --log=api/reports/log.html \
+            --report=api/reports/report.html \
+            --listener="allure_robotframework;api/reports/api_allure" {} +
 
       - name: Generate Allure HTML report
         run: |
@@ -50,7 +51,7 @@ jobs:
             /opt/allure/allure-2.30.0/bin/allure generate api/reports/api_allure -o api/reports/allure-report --clean
             ls -R api/reports/allure-report
           else
-            echo "Nenhum resultado Allure para gerar. Pulando geração de relatório."
+            echo "Nenhum resultado Allure para gerar."
 
       - name: Upload Robot & Allure reports
         uses: actions/upload-artifact@v4
