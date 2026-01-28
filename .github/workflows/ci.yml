@@ -12,19 +12,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout do repositório
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # 2️⃣ Configurar Python
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: 3.11
 
+      # 3️⃣ Instalar dependências via requirements.txt
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # 4️⃣ Instalar Allure CLI
       - name: Install Allure CLI
         run: |
           ALLURE_VERSION=2.30.0
@@ -33,9 +37,17 @@ jobs:
           export PATH=$PATH:/opt/allure/allure-$ALLURE_VERSION/bin
           allure --version
 
+      # 5️⃣ Criar pastas de reports
       - name: Create reports directories
         run: mkdir -p api/reports/api_allure
 
+      # 6️⃣ Debug: listar arquivos de teste
+      - name: Check tests folder
+        run: |
+          echo "Arquivos encontrados em ./api/tests:"
+          find ./api/tests -name "*.robot" || echo "Nenhum arquivo .robot encontrado"
+
+      # 7️⃣ Executar testes Robot Framework
       - name: Run Robot Framework tests
         run: |
           echo "Executando todos os arquivos .robot encontrados..."
@@ -45,14 +57,17 @@ jobs:
             --report=api/reports/report.html \
             --listener="allure_robotframework;api/reports/api_allure" {} +
 
+      # 8️⃣ Gerar relatório Allure HTML de forma segura
       - name: Generate Allure HTML report
         run: |
-          if [ -d "api/reports/api_allure" ] && [ "$(ls -A api/reports/api_allure)" ]; then
+          echo "Gerando relatório Allure..."
+          if test -d "api/reports/api_allure" && [ "$(ls -A api/reports/api_allure)" ]; then
             /opt/allure/allure-2.30.0/bin/allure generate api/reports/api_allure -o api/reports/allure-report --clean
             ls -R api/reports/allure-report
           else
             echo "Nenhum resultado Allure para gerar."
 
+      # 9️⃣ Upload de reports como artifacts
       - name: Upload Robot & Allure reports
         uses: actions/upload-artifact@v4
         with:
