@@ -1,4 +1,4 @@
-name: Robot Framework CI
+name: QA-Automation-Challenge-START
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
     - cron: "0 12 * * 4" # Quinta-feira às 09:00 BRT (12:00 UTC)
 
 jobs:
-  robot-tests:
+  api-tests:
     runs-on: ubuntu-latest
 
     steps:
