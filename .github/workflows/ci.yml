@@ -22,11 +22,11 @@ jobs:
         with:
           python-version: 3.11
 
-      # 3️⃣ Instalar dependências Python
+      # 3️⃣ Instalar dependências via requirements.txt
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install robotframework allure-python-commons
+          pip install -r requirements.txt
 
       # 4️⃣ Instalar Allure CLI manualmente
       - name: Install Allure CLI
@@ -50,35 +50,18 @@ jobs:
       # 7️⃣ Rodar testes Robot Framework apenas se houver arquivos
       - name: Run Robot Framework tests
         run: |
-          # Criar array com arquivos .robot
-          mapfile -t ROBOT_FILES < <(find ./api/tests -name '*.robot')
-
-          if [ ${#ROBOT_FILES[@]} -eq 0 ]; then
-            echo "Nenhum arquivo .robot encontrado. Pulando execução."
-          else
-            echo "Arquivos a serem executados: ${ROBOT_FILES[@]}"
-            robot "${ROBOT_FILES[@]}" \
+          if [ -n "$(find ./api/tests -name '*.robot')" ]; then
+            echo "Executando testes Robot Framework..."
+            find ./api/tests -name '*.robot' -print0 | xargs -0 robot \
               --output=api/reports/output.xml \
               --log=api/reports/log.html \
               --report=api/reports/report.html \
               --listener="allure_robotframework;api/reports/api_allure"
+          else
+            echo "Nenhum arquivo .robot encontrado. Pulando execução."
 
       # 8️⃣ Gerar relatório Allure HTML somente se houver resultados
       - name: Generate Allure HTML report
         run: |
           if [ -d "api/reports/api_allure" ] && [ "$(ls -A api/reports/api_allure)" ]; then
-            /opt/allure/allure-2.30.0/bin/allure generate api/reports/api_allure -o api/reports/allure-report --clean
-            ls -R api/reports/allure-report
-          else
-            echo "Nenhum resultado Allure para gerar. Pulando geração de relatório."
-
-      # 9️⃣ Upload dos artifacts
-      - name: Upload Robot & Allure reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: robot-allure-reports
-          path: |
-            api/reports/output.xml
-            api/reports/log.html
-            api/reports/report.html
-            api/reports/allure-report
+            /opt/allure/allure-2.30.0/bin/allure generate api/reports/api_allure -o api/_
