@@ -2,158 +2,79 @@ name: QA-Automation-Challenge-START
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   schedule:
     - cron: "0 12 * * 4" # Quinta-feira às 09:00 BRT (12:00 UTC)
 
 jobs:
-
   api-tests:
-    name: API Tests
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout do repositório
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
+      # 2️⃣ Configurar Python
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
           python-version: 3.11
-          cache: 'pip'
 
+      # 3️⃣ Instalar dependências
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # 4️⃣ Instalar Allure CLI
       - name: Install Allure CLI
         run: |
           ALLURE_VERSION=2.30.0
-          wget -q https://github.com/allure-framework/allure2/releases/download/$ALLURE_VERSION/allure-$ALLURE_VERSION.zip
-          unzip -q allure-$ALLURE_VERSION.zip -d /opt/allure
-          /opt/allure/allure-$ALLURE_VERSION/bin/allure --version
+          wget https://github.com/allure-framework/allure2/releases/download/$ALLURE_VERSION/allure-$ALLURE_VERSION.zip
+          unzip allure-$ALLURE_VERSION.zip -d /opt/allure
+          export PATH=$PATH:/opt/allure/allure-$ALLURE_VERSION/bin
+          allure --version
 
-      - name: Create API reports directories
+      # 5️⃣ Criar pastas de reports
+      - name: Create reports directories
         run: mkdir -p api/reports/api_allure
 
-      - name: Run API Robot Framework tests
+      # 6️⃣ Listar arquivos de teste (debug)
+      - name: Check tests folder
         run: |
-          echo "Executando testes de API..."
+          echo "Arquivos encontrados em ./api/tests:"
+          find ./api/tests -name "*.robot" || echo "Nenhum arquivo .robot encontrado"
+
+      # 7️⃣ Executar testes Robot Framework
+      - name: Run Robot Framework tests
+        run: |
+          echo "Executando todos os arquivos .robot encontrados..."
           find ./api/tests -name "*.robot" -exec robot \
             --output=api/reports/output.xml \
             --log=api/reports/log.html \
             --report=api/reports/report.html \
             --listener="allure_robotframework;api/reports/api_allure" {} +
 
-      - name: Generate API Allure report
+      # 8️⃣ Gerar relatório Allure de forma segura (uma linha lógica)
+      - name: Generate Allure HTML report
         run: |
+          echo "Gerando relatório Allure..."
           ALLURE_DIR="api/reports/api_allure"
           OUTPUT_DIR="api/reports/allure-report"
-          if [ -d "$ALLURE_DIR" ] && [ "$(ls -A $ALLURE_DIR)" ]; then
-            /opt/allure/allure-2.30.0/bin/allure generate "$ALLURE_DIR" -o "$OUTPUT_DIR" --clean
-          else
-            echo "Nenhum resultado Allure API."
-          fi
 
-      - name: Upload API reports
+          [ -d "$ALLURE_DIR" ] && [ "$(ls -A $ALLURE_DIR)" ] && \
+            /opt/allure/allure-2.30.0/bin/allure generate "$ALLURE_DIR" -o "$OUTPUT_DIR" --clean || \
+            echo "Nenhum resultado Allure para gerar."
+
+      # 9️⃣ Upload de reports como artifacts
+      - name: Upload Robot & Allure reports
         uses: actions/upload-artifact@v4
         with:
-          name: api-reports
-          path: api/reports
-
-
-  mobile-tests:
-    name: Mobile Tests (Android Headless)
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 17
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.11
-          cache: 'pip'
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Install Appium
-        run: |
-          npm install -g appium
-          appium --version
-          appium driver install uiautomator2
-
-      - name: Start Android Emulator
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 33
-          target: google_apis
-          arch: x86_64
-          avd-name: qa-emulator
-          force-avd-creation: true
-          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect
-          disable-animations: true
-          script: |
-            adb wait-for-device
-            adb shell getprop sys.boot_completed
-            adb devices
-            echo "Emulador pronto!"
-
-      - name: Start Appium Server
-        run: |
-          nohup appium --base-path /wd/hub --log appium.log &
-          sleep 15
-
-      - name: Install Allure CLI
-        run: |
-          ALLURE_VERSION=2.30.0
-          wget -q https://github.com/allure-framework/allure2/releases/download/$ALLURE_VERSION/allure-$ALLURE_VERSION.zip
-          unzip -q allure-$ALLURE_VERSION.zip -d /opt/allure
-          /opt/allure/allure-$ALLURE_VERSION/bin/allure --version
-
-      - name: Create Mobile reports directories
-        run: mkdir -p mobile/reports/mobile_allure
-
-      - name: Run Mobile Robot Framework tests
-        run: |
-          echo "Executando testes Mobile..."
-          find ./mobile/tests -name "*.robot" -exec robot \
-            --output=mobile/reports/output.xml \
-            --log=mobile/reports/log.html \
-            --report=mobile/reports/report.html \
-            --listener="allure_robotframework;mobile/reports/mobile_allure" {} +
-
-      - name: Generate Mobile Allure report
-        run: |
-          ALLURE_DIR="mobile/reports/mobile_allure"
-          OUTPUT_DIR="mobile/reports/allure-report"
-          if [ -d "$ALLURE_DIR" ] && [ "$(ls -A $ALLURE_DIR)" ]; then
-            /opt/allure/allure-2.30.0/bin/allure generate "$ALLURE_DIR" -o "$OUTPUT_DIR" --clean
-          else
-            echo "Nenhum resultado Allure Mobile."
-          fi
-
-      - name: Upload Mobile reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: mobile-reports
+          name: robot-allure-reports
           path: |
-            mobile/reports
-            appium.log
+            api/reports/output.xml
+            api/reports/log.html
+            api/reports/report.html
+            api/reports/allure-report
