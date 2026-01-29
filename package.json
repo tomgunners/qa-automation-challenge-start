@@ -2,12 +2,23 @@
   "name": "qa-automation-challenge-start",
   "version": "1.0.0",
   "description": "Scripts para rodar testes automatizados de API e Mobile",
-  "scripts": {
-    "clean-reports": "rimraf \"api/reports\" && mkdir \"api/reports\"",
-    "test:api": "npm run clean-reports && robot --output api/reports/output.xml --log api/reports/log.html --report api/reports/report.html --listener allure_robotframework;api/reports/api_allure api/tests",
-    "allure:generate": "allure generate api/reports/api_allure -o api/reports/api_allure/html --clean",
-    "allure:open": "allure open api/reports/api_allure/html"
-  },
+"scripts": {
+  "clean:api": "rimraf \"api/reports\" && mkdir \"api/reports\"",
+  "clean:mobile": "rimraf \"mobile/reports\" && mkdir \"mobile/reports\"",
+
+  "test:api": "npm run clean:api && robot --output api/reports/output.xml --log api/reports/log.html --report api/reports/report.html --listener allure_robotframework;api/reports/api_allure api/tests",
+  "test:mobile": "npm run clean:mobile && robot --output mobile/reports/output.xml --log mobile/reports/log.html --report mobile/reports/report.html --listener allure_robotframework;mobile/reports/mobile_allure mobile/tests",
+  "test:all": "npm run test:api && npm run test:mobile",
+
+  "allure:api:generate": "allure generate api/reports/api_allure -o api/reports/allure-report --clean",
+  "allure:api:open": "allure open api/reports/allure-report",
+
+  "allure:mobile:generate": "allure generate mobile/reports/mobile_allure -o mobile/reports/allure-report --clean",
+  "allure:mobile:open": "allure open mobile/reports/allure-report",
+
+  "allure:all:generate": "npm run allure:api:generate && npm run allure:mobile:generate",
+  "allure:all:open": "npm run allure:api:open && npm run allure:mobile:open"
+},
   "dependencies": {},
   "devDependencies": {
     "rimraf": "^5.0.0"

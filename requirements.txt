@@ -7,7 +7,6 @@ requests==2.32.3
 
 # Mobile
 robotframework-appiumlibrary==2.1.0
-Appium-Python-Client==3.2.1
 
 # Data
 robotframework-faker==5.0.0

@@ -1,0 +1,4 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"passed","Thu Jan 29 19:28:27 BRST 2026","Thu Jan 29 19:28:28 BRST 2026","1348","","Tests","Balance Test","","","Consultar saldo das conta","Teste de Consultar Saldo da Conta"
+"passed","Thu Jan 29 19:28:28 BRST 2026","Thu Jan 29 19:28:29 BRST 2026","969","","Tests","Internal Transfer Test","","","Realizar dry run de transferência interna","Teste de Dry Run de Transferência Interna"
+"passed","Thu Jan 29 19:28:29 BRST 2026","Thu Jan 29 19:28:30 BRST 2026","766","","Tests","Statement Test","","","Consultar extrato das contas","Teste de Consultar Extrato da Conta"
