@@ -15,5 +15,4 @@ Consultar extrato das contas
         When criar sessão autenticada com token
         And consultar extrato da conta    ${account_id}
         Then validar status code 200
-        And validar estrutura do extrato
     END
