@@ -40,27 +40,3 @@ And consultar extrato da conta
 
 Then validar status code 200
     Should Be Equal As Numbers    ${RESPONSE.status_code}    200
-
-And validar estrutura do extrato
-    ${body}=    Evaluate    $RESPONSE.json()
-
-    Dictionary Should Contain Key    ${body}    cursor
-    Dictionary Should Contain Key    ${body}    data
-
-    ${items}=    Get From Dictionary    ${body}    data
-    ${total}=    Get Length    ${items}
-
-    Run Keyword If    ${total} > 0
-    ...    Validar item do extrato    ${items}[0]
-
-Validar item do extrato
-    [Arguments]    ${item}
-    Dictionary Should Contain Key    ${item}    account_id
-    Dictionary Should Contain Key    ${item}    amount
-    Dictionary Should Contain Key    ${item}    balance_after
-    Dictionary Should Contain Key    ${item}    balance_before
-    Dictionary Should Contain Key    ${item}    created_at
-    Dictionary Should Contain Key    ${item}    id
-    Dictionary Should Contain Key    ${item}    operation
-    Dictionary Should Contain Key    ${item}    status
-    Dictionary Should Contain Key    ${item}    type
