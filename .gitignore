@@ -2,18 +2,7 @@
 node_modules/
 
 # Allure reports
-api/reports/api_allure/
+api/reports/*
+mobile/reports/*
 
-# Robot Framework reports
-api/reports/log.html
-api/reports/output.xml
-api/reports/report.html
 
-# Allure reports
-mobile/reports/allure-report/
-mobile/reports/mobile_allure/
-
-# Robot Framework reports
-mobile/reports/log.html
-mobile/reports/output.xml
-mobile/reports/report.html
